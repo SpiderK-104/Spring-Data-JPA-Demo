@@ -1,13 +1,26 @@
 spring:
   application:
     name: jpa-learn
-  #数据库配置（PostgreSQL）
+  # 数据库配置（PostgreSQL）
   datasource:
     url: jdbc:postgresql://localhost:5432/db_demo
     username: postgres
     password: 123456
     driver-class-name: org.postgresql.Driver
+    # 数据库连接池的配置，hikari 连接池的配置
+    hikari:
+      idle-timeout: 30000
+      connection-timeout: 10000
+      maximum-pool-size: 15
+      minimum-idle: 5
+      auto-commit: true
+      connection-test-query: SELECT 1
+  # JPA 配置
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 server:
-  port:8081
-
+  port: 8081
