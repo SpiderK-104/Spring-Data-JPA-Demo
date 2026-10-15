@@ -15,12 +15,18 @@ spring:
       minimum-idle: 5
       auto-commit: true
       connection-test-query: SELECT 1
+  # 启动时执行 init.sql 初始化表结构与数据
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:init.sql
   # JPA 配置
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false  # 关闭 Open-Session-in-View，便于感受 Detached 态
 
 server:
   port: 8081
