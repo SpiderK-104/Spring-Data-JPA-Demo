@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     /**
-     * @EntityGraph：把 items 一起查出来，事务外访问不再报错。
+     * @EntityGraph 注解可以把 items 一起查出来，事务外访问不再报错。
      */
     @EntityGraph(attributePaths = "items")
     Optional<Order> findWithItemsById(Long id);
