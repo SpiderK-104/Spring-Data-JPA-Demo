@@ -26,6 +26,8 @@ public interface JpqlUserRepository extends JpaRepository<User, Long> {
 
     /**
      * 2. 命名参数 {@code :name}（配合 @Param）
+     * 占位符名称要和 @Param("xxx") 里的字符串 完全一致
+     * 查询语言不声明,就默认是 JPQL（不用写 nativeQuery = true）
      */
     @Query("select count(u) from User u where u.age >= :min and u.status = :status")
     long countByMinAgeAndStatus(@Param("min") int min, @Param("status") int status);
@@ -45,7 +47,7 @@ public interface JpqlUserRepository extends JpaRepository<User, Long> {
     /**
      * 5. 排序 + 分页：Pageable 注入 limit/offset（JPQL 不能写 LIMIT/OFFSET）
      */
-    @Query("select u from User u order by u.age desc")
+    @Query("select u from User u ")
     List<User> findTopByAgeDesc(Pageable pageable);
 
     /**

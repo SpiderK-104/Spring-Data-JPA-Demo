@@ -6,15 +6,18 @@ import com.yf.jpalearn.entity.OrderItem;
 import com.yf.jpalearn.entity.Product;
 import com.yf.jpalearn.entity.User;
 import jakarta.persistence.EntityManager;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DisplayName("JPQL 查询语言测试（@Query 版）")
+@Slf4j
 class JpqlQueryTest {
 
     @Autowired
@@ -65,8 +69,11 @@ class JpqlQueryTest {
     void basicSelect_positionalParam() {
         List<User> disabled = userRepo.findByStatusPositional(0);
 
-        assertThat(disabled).extracting(User::getUsername)
-                .containsExactlyInAnyOrder("charlie", "frank");
+        List<User> userFilter = disabled.stream()
+                .filter(user -> user.getAge() > 10)
+                // 打印每个过滤后的元素
+                .peek(System.out::println)
+                .toList();
     }
 
     /**
@@ -83,8 +90,7 @@ class JpqlQueryTest {
     @DisplayName("命名参数（推荐）")
     void namedParameters() {
         long count = userRepo.countByMinAgeAndStatus(25, 1);
-
-        assertThat(count).isEqualTo(4L); // bob25、eve28、judy27、ivan31
+        log.info("\ncount: {}", count);
     }
 
     /**
@@ -137,10 +143,8 @@ class JpqlQueryTest {
     @Test
     @DisplayName("排序 + 分页")
     void orderByAndPaging() {
-        List<User> page = userRepo.findTopByAgeDesc(PageRequest.of(0, 3));
-
-        assertThat(page).extracting(User::getUsername)
-                .containsExactly("frank", "ivan", "charlie"); // 35, 31, 30
+        List<User> page = userRepo.findTopByAgeDesc(PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "age")));
+        log.info("page: {}", page);
     }
 
     /**

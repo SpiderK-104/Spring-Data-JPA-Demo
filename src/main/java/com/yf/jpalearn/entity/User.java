@@ -7,6 +7,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "tb_user")
@@ -48,6 +50,35 @@ public class User {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    /**
+     * 单向一对一（21 讲）：User 持有 UserProfile，外键 profile_id 在 tb_user 上；
+     * UserProfile 不反向引用，所以只能 User -> Profile。
+     */
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "profile_id", unique = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private UserProfile profile;
+
+    /**
+     * 多对多（25-27 讲）的<b>维护方</b>：@JoinTable 定义中间表 user_role，改动会写中间表。
+     * <ul>
+     *   <li>用 Set 而非 List：避免重复元素导致中间表重复/主键冲突。</li>
+     *   <li>cascade 只给 PERSIST/MERGE，<b>绝不给 REMOVE</b>：否则删用户会连带删角色。</li>
+     *   <li>默认 LAZY；这里排除出 toString/equals，避免与 Role.users 互相递归。</li>
+     * </ul>
+     */
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Role> roles = new HashSet<>();
 
     // 便于测试中构造“瞬时态”（Transient）对象
     public static User of(String username, String nickname, String email, Integer age, Integer status) {
