@@ -1,4 +1,9 @@
-DROP TABLE IF EXISTS tb_user;
+-- 初始化脚本（PostgreSQL）
+-- 为可重复执行，先按依赖顺序删除相关表（CASCADE 处理外键依赖）
+DROP TABLE IF EXISTS order_items CASCADE;
+DROP TABLE IF EXISTS orders CASCADE;
+DROP TABLE IF EXISTS products CASCADE;
+DROP TABLE IF EXISTS tb_user CASCADE;
 
 CREATE TABLE tb_user
 (
@@ -8,18 +13,19 @@ CREATE TABLE tb_user
     email      VARCHAR(100),
     age        INTEGER,
     status     INTEGER      DEFAULT 1,
+    version    BIGINT       NOT NULL DEFAULT 0,
     created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO tb_user (username, nickname, email, age, status, created_at, updated_at)
-VALUES ('alice', '爱丽丝', 'alice@example.com', 20, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-       ('bob', '鲍勃', 'bob@example.com', 25, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-       ('charlie', '查理', 'charlie@example.com', 30, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-       ('dave', '戴夫', 'dave@example.com', 22, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-       ('eve', '伊芙', 'eve@example.com', 28, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-       ('frank', '弗兰克', 'frank@example.com', 35, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-       ('grace', '格蕾丝', 'grace@example.com', 19, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-       ('heidi', '海蒂', 'heidi@example.com', 24, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-       ('ivan', '伊凡', 'ivan@example.com', 31, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-       ('judy', '朱迪', 'judy@example.com', 27, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO tb_user (username, nickname, email, age, status, version, created_at, updated_at)
+VALUES ('alice', '爱丽丝', 'alice@example.com', 20, 1, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+       ('bob', '鲍勃', 'bob@example.com', 25, 1, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+       ('charlie', '查理', 'charlie@example.com', 30, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+       ('dave', '戴夫', 'dave@example.com', 22, 1, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+       ('eve', '伊芙', 'eve@example.com', 28, 1, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+       ('frank', '弗兰克', 'frank@example.com', 35, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+       ('grace', '格蕾丝', 'grace@example.com', 19, 1, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+       ('heidi', '海蒂', 'heidi@example.com', 24, 1, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+       ('ivan', '伊凡', 'ivan@example.com', 31, 1, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+       ('judy', '朱迪', 'judy@example.com', 27, 1, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
