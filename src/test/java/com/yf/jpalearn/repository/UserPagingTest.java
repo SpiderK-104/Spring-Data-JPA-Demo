@@ -4,6 +4,7 @@ import com.yf.jpalearn.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.*;
 
@@ -12,6 +13,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DisplayName("JPA 分页、排序、Page 与 Slice 测试")
 class UserPagingTest {
 
@@ -50,10 +52,10 @@ class UserPagingTest {
     }
 
     @Test
-    @DisplayName("自定义 JPQL + 分页：searchByNickname like %keyword%")
+    @DisplayName("派生查询 + 分页：findByNicknameContaining like %keyword%")
     void testSearchByNicknamePaging() {
         Pageable pageable = PageRequest.of(0, 2);
-        Page<User> page = userRepository.searchByNickname("丽", pageable);
+        Page<User> page = userRepository.findByNicknameContaining("丽", pageable);
 
         assertThat(page.getContent()).extracting(User::getUsername).contains("alice");
         assertThat(page.getTotalElements()).isEqualTo(1);

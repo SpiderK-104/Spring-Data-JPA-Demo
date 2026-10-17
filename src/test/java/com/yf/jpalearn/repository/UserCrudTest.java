@@ -2,23 +2,26 @@ package com.yf.jpalearn.repository;
 
 import com.yf.jpalearn.entity.User;
 import jakarta.persistence.EntityManager;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @DisplayName("JPA 基础增删改查测试")
+@Slf4j
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class UserCrudTest {
-
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private EntityManager em;
 
@@ -43,12 +46,20 @@ class UserCrudTest {
     void testFind() {
         // 从 init.sql 已有数据中查找 alice
         Optional<User> opt = userRepository.findByUsername("alice");
+        if (opt.isEmpty()) {
+            log.error("alice not found");
+            throw new NoSuchElementException("alice not found");
+        }
+        // 输出获得的用户
+        //  User user = opt.get();
+        //  System.out.println(user);
+
         assertThat(opt).isPresent();
 
         User alice = opt.get();
         // 事务内：由 EntityManager 管理 -> Persistent
         // 在同一事务内，再次 findById 返回同一对象（1级缓存）
-        User same = userRepository.findById(alice.getId()).orElseThrow();
+        User same = userRepository.findById(alice.getId()).orElseThrow(() -> new IllegalArgumentException("alice not found"));
         assertThat(same).isSameAs(alice); // 同一个 Java 实例，印证 1级缓存
     }
 
@@ -119,19 +130,12 @@ class UserCrudTest {
     }
 
     @Test
-    @DisplayName("自定义 JPQL 更新：updateStatus 需配合 @Modifying + @Transactional")
-    @Transactional
-    void testCustomUpdate() {
-        User dave = userRepository.findByUsername("dave").orElseThrow();
-        assertThat(dave.getStatus()).isEqualTo(1);
-
-        int affected = userRepository.updateStatus(dave.getId(), 0);
-        assertThat(affected).isEqualTo(1);
-
-        em.flush();
-        em.clear();
-
-        User reloaded = userRepository.findById(dave.getId()).orElseThrow();
-        assertThat(reloaded.getStatus()).isEqualTo(0);
+    @DisplayName("派生查询：existsByUsername / countByStatus")
+    void testExistsAndCount() {
+        assertThat(userRepository.existsByUsername("alice")).isTrue();
+        assertThat(userRepository.existsByUsername("nobody")).isFalse();
+        // init.sql 中 status=1 共 8 条，status=0 共 2 条
+        assertThat(userRepository.countByStatus(1)).isEqualTo(8);
+        assertThat(userRepository.countByStatus(0)).isEqualTo(2);
     }
 }

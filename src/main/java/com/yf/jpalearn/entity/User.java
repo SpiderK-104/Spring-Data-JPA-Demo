@@ -11,9 +11,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "tb_user")
 @EntityListeners(AuditingEntityListener.class)
-@Getter
-@Setter
 @Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
@@ -37,6 +36,10 @@ public class User {
 
     @Column(name = "status")
     private Integer status; // 1: 正常 0: 禁用
+
+    @Version
+    @Column(name = "version")
+    private Long version;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
