@@ -66,6 +66,7 @@ class UserPagingTest {
     void testSlice() {
         Pageable pageable = PageRequest.of(0, 4);
         Slice<User> slice = userRepository.findByStatusOrderByIdAsc(1, pageable);
+        System.out.println(slice.getSize());
 
         assertThat(slice.getContent()).hasSize(4);
         assertThat(slice.hasNext()).isTrue();

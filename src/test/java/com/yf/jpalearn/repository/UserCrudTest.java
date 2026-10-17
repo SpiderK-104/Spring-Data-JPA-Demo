@@ -8,8 +8,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -18,12 +22,87 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @DisplayName("JPA 基础增删改查测试")
 @Slf4j
+//@TestInstance(TestInstance.Lifecycle.PER_CLASS) // 关键：测试实例在类生命周期只创建一次
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class UserCrudTest {
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private EntityManager em;
+
+
+    @Test
+    @DisplayName("CrudRepository save()方法")
+    // @Commit：提交事务，将数据库操作生效.@SpringbootTest 每个@Test方法都运行在一个事务里，
+    // 测试结束后，会自动回滚（rollback)，所以要在下面添加 @Commit 提交事务
+    @Commit
+    void testInsert() {
+        User user = new User();
+        user.setUsername("test_user");
+        user.setNickname("测试用户");
+        user.setEmail("test@example.com");
+        user.setAge(18);
+        user.setStatus(1);
+        user.setCreatedAt(LocalDateTime.now());
+        user.setUpdatedAt(LocalDateTime.now());
+        User saved = userRepository.save(user);
+        log.info("User saved: {}", saved);
+    }
+
+    @Test
+//    @Commit
+    @DisplayName("CrudRepository SaveAll方法")
+    void testSaveAll() {
+        User user1 = new User();
+        user1.setUsername("test_user1");
+        user1.setNickname("测试用户1");
+        user1.setEmail("test@example.com1");
+        user1.setAge(18);
+        user1.setStatus(1);
+        user1.setCreatedAt(LocalDateTime.now());
+        user1.setUpdatedAt(LocalDateTime.now());
+        User user2 = new User();
+        user2.setUsername("test_user2");
+        user2.setNickname("测试用户2");
+        user2.setEmail("test@example.com2");
+        user2.setAge(19);
+        user2.setStatus(1);
+        user2.setCreatedAt(LocalDateTime.now());
+        user2.setUpdatedAt(LocalDateTime.now());
+        List<User> userList = new ArrayList<>();
+        userList.add(user1);
+        userList.add(user2);
+        userRepository.saveAll(userList);
+
+        log.info("用户列表已保存: {}", userList);
+
+    }
+
+    @Test
+    @DisplayName("CrudRepository findById()方法")
+    void find() {
+        User user = userRepository.findById(22L).orElseThrow(() -> new IllegalArgumentException("用户ID为22的用户不存在。"));
+        log.info("User found: {}", user);
+    }
+
+
+    @Test
+    @DisplayName("existsById 测试")
+    void existsById() {
+        boolean exists = userRepository.existsById(22L);
+        System.out.println("exists: " + exists);
+
+    }
+
+    //无条件删除所有用户数据
+    @Test
+    @Commit
+    @DisplayName("deleteAll 测试")
+    void deleteAll() {
+        userRepository.deleteAll();
+        log.info("所有用户已删除");
+
+    }
 
     @Test
     @DisplayName("新增：new 实体 -> save() 后变为 Persistent")
@@ -61,6 +140,19 @@ class UserCrudTest {
         // 在同一事务内，再次 findById 返回同一对象（1级缓存）
         User same = userRepository.findById(alice.getId()).orElseThrow(() -> new IllegalArgumentException("alice not found"));
         assertThat(same).isSameAs(alice); // 同一个 Java 实例，印证 1级缓存
+    }
+
+
+    @Test
+    @DisplayName("findAllByIds测试")
+    void findAllById() {
+        List<User> users = userRepository.findAllById(List.of(1L, 2L));
+//        System.out.println("users: " + users);
+        log.info("users: {}", users);
+
+        long userCount = userRepository.count();
+        log.info("无条件查询记录总数: {}", userCount);
+
     }
 
     @Test

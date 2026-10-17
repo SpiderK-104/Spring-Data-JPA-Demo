@@ -48,13 +48,13 @@ class UserCrudScenarioTest {
     @Test
     @DisplayName("C-1 新增：Repository.save 走 persist，主键回填")
     void create_byRepositorySave() {
-        User user = User.of("newbie", "新来的", "newbie@example.com", 18, 1);
+        User user = User.of("zhangsan", "张三", "zhangsan@example.com", 18, 1);
 
         User saved = userRepository.save(user);
 
         assertThat(saved.getId()).isNotNull();
         assertThat(saved.getVersion()).isEqualTo(0L); // @Version 初始为 0
-        assertThat(userRepository.findByUsername("newbie")).isPresent();
+        assertThat(userRepository.findByUsername("zhangsan")).isPresent();
     }
 
     @Test
