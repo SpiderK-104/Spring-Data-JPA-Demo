@@ -16,6 +16,7 @@ import java.util.Optional;
  * FOR UPDATE SKIP LOCKED / 分批 DELETE），并直接操作会话与一级缓存，语义上不属于"纯 CRUD"。
  */
 @Repository
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) // 关键：测试实例在类生命周期只创建一次
 public class UserNativeRepository {
 
     @PersistenceContext
