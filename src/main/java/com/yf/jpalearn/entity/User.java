@@ -62,12 +62,10 @@ public class User {
     private UserProfile profile;
 
     /**
-     * 多对多（25-27 讲）的<b>维护方</b>：@JoinTable 定义中间表 user_role，改动会写中间表。
-     * <ul>
-     *   <li>用 Set 而非 List：避免重复元素导致中间表重复/主键冲突。</li>
-     *   <li>cascade 只给 PERSIST/MERGE，<b>绝不给 REMOVE</b>：否则删用户会连带删角色。</li>
-     *   <li>默认 LAZY；这里排除出 toString/equals，避免与 Role.users 互相递归。</li>
-     * </ul>
+     * 多对多（25-27 讲）的维护方：@JoinTable 定义中间表 user_role，改动会写中间表。
+     * - 用 Set 而非 List：避免重复元素导致中间表重复/主键冲突。
+     * - cascade 只给 PERSIST/MERGE，绝不给 REMOVE：否则删用户会连带删角色。
+     * - 默认 LAZY；这里排除出 toString/equals，避免与 Role.users 互相递归。
      */
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(

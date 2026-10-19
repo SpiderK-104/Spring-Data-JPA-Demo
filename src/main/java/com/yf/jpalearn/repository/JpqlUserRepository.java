@@ -12,20 +12,20 @@ import java.util.List;
 
 /**
  * JPQL 专项仓储（@Query 版）：所有查询都用注解声明，贴近日常 Spring Data JPA 开发。
- * <p>
- * 与 {@link UserRepository}（纯派生查询）、{@link UserNativeRepository}（原生 SQL）区分开，
+ *
+ * 与 UserRepository（纯派生查询）、UserNativeRepository（原生 SQL）区分开，
  * 便于对照三种写法的差异。
  */
 public interface JpqlUserRepository extends JpaRepository<User, Long> {
 
     /**
-     * 1. 位置参数 {@code ?1}
+     * 1. 位置参数 ?1
      */
     @Query("select u from User u where u.status = ?1")
     List<User> findByStatusPositional(Integer status);
 
     /**
-     * 2. 命名参数 {@code :name}（配合 @Param）
+     * 2. 命名参数 :name（配合 @Param）
      * 占位符名称要和 @Param("xxx") 里的字符串 完全一致
      * 查询语言不声明,就默认是 JPQL（不用写 nativeQuery = true）
      */
@@ -99,7 +99,7 @@ public interface JpqlUserRepository extends JpaRepository<User, Long> {
     List<User> findOlderThanAverage();
 
     /**
-     * 12. 批量 UPDATE：{@code @Modifying} 必须运行在事务中；返回受影响行数。
+     * 12. 批量 UPDATE：@Modifying 必须运行在事务中；返回受影响行数。
      * clearAutomatically=true 会在执行后清理一级缓存，flushAutomatically=true 先刷未落库的改动。
      */
     @Modifying(clearAutomatically = true, flushAutomatically = true)

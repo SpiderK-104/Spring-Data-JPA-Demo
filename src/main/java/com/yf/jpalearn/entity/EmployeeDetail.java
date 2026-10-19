@@ -6,9 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * 员工详情（22 讲 · 双向一对一的<b>被维护方</b>）。
- * <p>
- * {@code mappedBy = "detail"} 指向 Employee.detail；本类不维护外键，只做逆向导航。
+ * 员工详情（22 讲 · 双向一对一的被维护方）。
+ *
+ * mappedBy = "detail" 指向 Employee.detail；本类不维护外键，只做逆向导航。
  */
 @Entity
 @Table(name = "employee_detail")

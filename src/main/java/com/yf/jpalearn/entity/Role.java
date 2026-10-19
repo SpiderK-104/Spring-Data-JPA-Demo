@@ -11,9 +11,9 @@ import java.util.Set;
 
 /**
  * 角色（25-27 讲 · 多对多）。
- * <p>
- * 本类是<b>被维护方</b>：{@code mappedBy = "roles"} 指向 {@link User#getRoles()}（真正的维护方）。
- * 因此往 {@code users} 里 add 用户<b>不会</b>写中间表，只有维护方（User.roles）的改动才会落库。
+ *
+ * 本类是被维护方：mappedBy = "roles" 指向 User#getRoles()（真正的维护方）。
+ * 因此往 users 里 add 用户不会写中间表，只有维护方（User.roles）的改动才会落库。
  */
 @Entity
 @Table(name = "role")

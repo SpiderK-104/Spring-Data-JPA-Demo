@@ -21,12 +21,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * 综合增删改查场景测试。
- * <p>
+ *
  * 参照 doc/pgsql-usage.md 的实战场景做"简化但不改核心"的落地：
  * 派生 CRUD + 分页、ON CONFLICT 幂等 Upsert、INSERT ... RETURNING、
  * FOR UPDATE SKIP LOCKED 抢任务、分批 DELETE ... LIMIT、CAS 乐观锁、悲观锁读。
- * <p>
- * {@code @DataJpaTest} 默认每个方法跑在一个会回滚的事务里，因此不会污染 init.sql 的数据。
+ *
+ * @DataJpaTest 默认每个方法跑在一个会回滚的事务里，因此不会污染 init.sql 的数据。
  */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)

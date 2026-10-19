@@ -26,12 +26,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * JPA 懒加载 + 事务边界机制测试。
- * <p>
- * 参照 doc/spring-jpa-lazy-notes.md：复现 {@code LazyInitializationException (no Session)}，
+ *
+ * 参照 doc/spring-jpa-lazy-notes.md：复现 LazyInitializationException (no Session)，
  * 并验证其三种解法——事务内访问 / @EntityGraph 预加载 / join fetch 预加载 / 只取标量。
- * <p>
- * 这里用 {@code @Transactional(propagation = NOT_SUPPORTED)} 关掉测试自带事务，
- * 由 {@link TransactionTemplate} 手工控制事务边界，才能真正模拟"事务外访问懒集合"。
+ *
+ * 这里用 @Transactional(propagation = NOT_SUPPORTED) 关掉测试自带事务，
+ * 由 TransactionTemplate 手工控制事务边界，才能真正模拟"事务外访问懒集合"。
  */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)

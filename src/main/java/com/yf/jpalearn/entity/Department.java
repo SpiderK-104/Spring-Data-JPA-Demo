@@ -11,8 +11,8 @@ import java.util.List;
 /**
  * 部门（23 讲 · 一对多）。
  * <p>
- * 这里是<b>反向（被维护方）</b>：{@code mappedBy = "department"} 指向 Employee.department，
- * 真正维护外键 dept_id 的是“多”方 Employee 的 {@code @ManyToOne}。
+ * 这里是反向（被维护方）：mappedBy = "department" 指向 Employee.department，
+ * 真正维护外键 dept_id 的是“多”方 Employee 的 @ManyToOne。
  */
 @Entity
 @Table(name = "department")
@@ -29,7 +29,7 @@ public class Department {
     private String name;
 
     /**
-     * 一对多集合。默认 LAZY；反向映射因此不会额外维护外键。
+     * 一对多集合：一个部门对应多个职员。默认 LAZY；反向映射因此不会额外维护外键。
      * cascade = ALL + orphanRemoval 让“从集合移除 = 删除明细”更符合直觉。
      */
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

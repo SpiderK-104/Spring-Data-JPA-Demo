@@ -20,8 +20,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  * 一对多 / 多对一关联映射测试（23-24 讲）。
  * <p>
- * 本质是一回事：Department(一) &lt;-&gt; Employee(多)。最佳实践是<b>双向</b>——
- * "一"方 {@code @OneToMany(mappedBy)} 反向，"多"方 {@code @ManyToOne + @JoinColumn} 拥有并维护外键。
+ * 本质是一回事：Department(一) <-> Employee(多)。最佳实践是双向——
+ * "一"方 @OneToMany(mappedBy) 反向，"多"方 @ManyToOne + @JoinColumn 拥有并维护外键。
  */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -41,11 +41,9 @@ class OneToManyMappingTest {
      * 双向一对多（推荐写法）：外键落在"多"方 Employee.dept_id，由 @ManyToOne 维护。
      * <p>
      * 注意事项：
-     * <ul>
-     *   <li>"一"方用 {@code mappedBy = "department"} 标记为<b>反向</b>，不再重复建设外键列。</li>
-     *   <li>addEmployee 里"两边都设"，内存一致性与数据库一致。</li>
-     *   <li>集合默认 LAZY；这里 cascade=ALL + orphanRemoval，从集合移除即删除子行。</li>
-     * </ul>
+     * - "一"方用 mappedBy = "department" 标记为反向，不再重复建设外键列。
+     * - addEmployee 里"两边都设"，内存一致性与数据库一致。
+     * - 集合默认 LAZY；这里 cascade=ALL + orphanRemoval，从集合移除即删除子行。
      */
     @Test
     @DisplayName("双向：用 A 方 addEmployee 同步两边，外键落在 B 方")
@@ -65,11 +63,9 @@ class OneToManyMappingTest {
      * 坑：只往"一"方集合里 add、忘了设"多"方的 department。
      * <p>
      * 注意事项：
-     * <ul>
-     *   <li>反向集合（{@code @OneToMany(mappedBy)}）<b>不维护外键</b>，Hibernate 会忽略它的变化。</li>
-     *   <li>结果：员工被存下来了，但 {@code dept_id} 为 null，按部门查不到——"内存看着对，库里没关联"。</li>
-     *   <li>口诀：谁是维护方，就改谁（这里改 Employee.department）。</li>
-     * </ul>
+     * - 反向集合（@OneToMany(mappedBy)）不维护外键，Hibernate 会忽略它的变化。
+     * - 结果：员工被存下来了，但 dept_id 为 null，按部门查不到——"内存看着对，库里没关联"。
+     * - 口诀：谁是维护方，就改谁（这里改 Employee.department）。
      */
     @Test
     @DisplayName("坑：只设反向集合，外键不更新（dept_id 为 null）")
@@ -87,14 +83,12 @@ class OneToManyMappingTest {
     }
 
     /**
-     * 坑：事务外访问懒加载集合 -&gt; LazyInitializationException（no Session）。
+     * 坑：事务外访问懒加载集合 -> LazyInitializationException（no Session）。
      * <p>
      * 注意事项：
-     * <ul>
-     *   <li>{@code @OneToMany} / {@code @ManyToOne} 默认 LAZY，脱离事务/Session 后再访问代理会抛异常。</li>
-     *   <li>解法：事务内访问、@EntityGraph 或 join fetch 预加载、或只取标量（见 LazyInitializationTest）。</li>
-     *   <li>本方法关闭了测试自带事务（NOT_SUPPORTED），用 TransactionTemplate 手工控制边界，才能真正复现。</li>
-     * </ul>
+     * - @OneToMany / @ManyToOne 默认 LAZY，脱离事务/Session 后再访问代理会抛异常。
+     * - 解法：事务内访问、@EntityGraph 或 join fetch 预加载、或只取标量（见 LazyInitializationTest）。
+     * - 本方法关闭了测试自带事务（NOT_SUPPORTED），用 TransactionTemplate 手工控制边界，才能真正复现。
      */
     @Test
     @DisplayName("坑：事务外访问懒集合 -> LazyInitializationException")

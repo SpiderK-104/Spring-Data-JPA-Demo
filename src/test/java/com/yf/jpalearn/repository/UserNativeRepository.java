@@ -11,7 +11,7 @@ import java.util.Optional;
 
 /**
  * PostgreSQL 实战场景仓储（简化自 doc/pgsql-usage.md 中的真实用例）。
- * <p>
+ *
  * 之所以单独放一个类、且换个名字：这些方法清一色是原生 SQL（ON CONFLICT / RETURNING /
  * FOR UPDATE SKIP LOCKED / 分批 DELETE），并直接操作会话与一级缓存，语义上不属于"纯 CRUD"。
  */

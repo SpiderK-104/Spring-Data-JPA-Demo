@@ -12,13 +12,11 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * 多对多关联映射测试（25-27 讲）：用户 &lt;-&gt; 角色，靠中间表 user_role 维护。
- * <p>
+ * 多对多关联映射测试（25-27 讲）：用户 <-> 角色，靠中间表 user_role 维护。
+ *
  * 核心记住两点：
- * <ol>
- *   <li><b>维护方</b>是带 {@code @JoinTable} 的 {@link User#getRoles()}；只有改它才会写中间表。</li>
- *   <li>集合用 {@code Set}；cascade 只给 PERSIST/MERGE，<b>不要给 REMOVE</b>。</li>
- * </ol>
+ * - 维护方是带 @JoinTable 的 User#getRoles()；只有改它才会写中间表。
+ * - 集合用 Set；cascade 只给 PERSIST/MERGE，不要给 REMOVE。
  * 数据全部在本事务内构造，方法结束回滚。
  */
 @DataJpaTest
@@ -39,13 +37,11 @@ class ManyToManyMappingTest {
 
     /**
      * 关联插入（26 讲）：用户和角色都是新对象。
-     * <p>
+     *
      * 注意事项：
-     * <ul>
-     *   <li>往<b>维护方</b>集合 add（{@code user.getRoles().add(role)}）；中间表 user_role 由 JPA 自动插入。</li>
-     *   <li>User.roles 配了 {@code cascade = PERSIST}，所以新角色会一并入库，无需先存 role。</li>
-     *   <li>若不配级联去 add 一个未持久化的 role，会抛 TransientObjectException / TransientPropertyValueException。</li>
-     * </ul>
+     * - 往维护方集合 add（user.getRoles().add(role)）；中间表 user_role 由 JPA 自动插入。
+     * - User.roles 配了 cascade = PERSIST，所以新角色会一并入库，无需先存 role。
+     * - 若不配级联去 add 一个未持久化的 role，会抛 TransientObjectException / TransientPropertyValueException。
      */
     @Test
     @DisplayName("新增关联：两边都是新对象（cascade PERSIST 一并入库）")
@@ -63,13 +59,11 @@ class ManyToManyMappingTest {
 
     /**
      * 插入已保存的关联数据（27 讲）：角色已存在数据库。
-     * <p>
+     *
      * 注意事项：
-     * <ul>
-     *   <li>只需把已存在的角色（查出来，受托管）挂到维护方集合上，持久化 User 即可。</li>
-     *   <li><b>不要</b> new 一个同 name 的新 Role 去 add：会命中唯一约束 / 造成"角色重复"。</li>
-     *   <li>中间表只多一行，role 表不会新增。</li>
-     * </ul>
+     * - 只需把已存在的角色（查出来，受托管）挂到维护方集合上，持久化 User 即可。
+     * - 不要 new 一个同 name 的新 Role 去 add：会命中唯一约束 / 造成"角色重复"。
+     * - 中间表只多一行，role 表不会新增。
      */
     @Test
     @DisplayName("插入已存在角色：查出来挂到维护方集合即可")
@@ -89,14 +83,12 @@ class ManyToManyMappingTest {
     }
 
     /**
-     * 关键：被维护方（mappedBy）改变<b>不会</b>写中间表（27 讲重点）。
-     * <p>
+     * 关键：被维护方（mappedBy）改变不会写中间表（27 讲重点）。
+     *
      * 注意事项：
-     * <ul>
-     *   <li>{@code role.getUsers().add(user)} 改的是 {@code mappedBy} 那一端，Hibernate 会忽略。</li>
-     *   <li>只有维护方 {@code @JoinTable} 那端（User.roles）的改动才落库。</li>
-     *   <li>双向多对多只保留一个维护方，避免"谁说了算"的歧义。</li>
-     * </ul>
+     * - role.getUsers().add(user) 改的是 mappedBy 那一端，Hibernate 会忽略。
+     * - 只有维护方 @JoinTable 那端（User.roles）的改动才落库。
+     * - 双向多对多只保留一个维护方，避免"谁说了算"的歧义。
      */
     @Test
     @DisplayName("坑：改被维护方（mappedBy）无效，只有维护方写中间表")
@@ -124,12 +116,10 @@ class ManyToManyMappingTest {
 
     /**
      * 集合用 Set 而非 List（26 讲）：重复添加同一个角色只保留一份。
-     * <p>
+     *
      * 注意事项：
-     * <ul>
-     *   <li>用 List 且重复 add，会产生重复的中间表行，甚至主键冲突（中间表复合主键 user_id+role_id）。</li>
-     *   <li>Set 去重依赖正确的 {@code equals/hashCode}（Role 按 name 判等）；否则两个"同 name"对象仍会各插一行。</li>
-     * </ul>
+     * - 用 List 且重复 add，会产生重复的中间表行，甚至主键冲突（中间表复合主键 user_id+role_id）。
+     * - Set 去重依赖正确的 equals/hashCode（Role 按 name 判等）；否则两个"同 name"对象仍会各插一行。
      */
     @Test
     @DisplayName("Set 去重：重复 add 同一个角色只留一行")
@@ -149,13 +139,11 @@ class ManyToManyMappingTest {
 
     /**
      * 删除关联（25 讲）：先解除关联，再删角色本体。
-     * <p>
+     *
      * 注意事项：
-     * <ul>
-     *   <li>多对多<b>不要配</b> {@code CascadeType.REMOVE}：否则删用户会把角色一起删掉（角色可能被其他用户共用）。</li>
-     *   <li>删除仍被引用的角色：先从维护方集合 remove（清中间表行），flush 后再删角色，避免外键约束报错。</li>
-     *   <li>删除用 {@code removeFromCollection} 而不是直接 delete 角色，能保证中间表同步清理。</li>
-     * </ul>
+     * - 多对多不要配 CascadeType.REMOVE：否则删用户会把角色一起删掉（角色可能被其他用户共用）。
+     * - 删除仍被引用的角色：先从维护方集合 remove（清中间表行），flush 后再删角色，避免外键约束报错。
+     * - 删除用 removeFromCollection 而不是直接 delete 角色，能保证中间表同步清理。
      */
     @Test
     @DisplayName("删除：先解除关联，再删角色")
@@ -181,12 +169,10 @@ class ManyToManyMappingTest {
 
     /**
      * 删除用户不应连累角色（25 讲：级联慎用）。
-     * <p>
+     *
      * 注意事项：
-     * <ul>
-     *   <li>因为 roles 未配 REMOVE，删用户只会删掉中间表里的关联行，role 表不受影响。</li>
-     *   <li>若把 User.roles 配成 {@code cascade = ALL/REMOVE}，删用户会级联删除这些角色 → 生产事故高发点。</li>
-     * </ul>
+     * - 因为 roles 未配 REMOVE，删用户只会删掉中间表里的关联行，role 表不受影响。
+     * - 若把 User.roles 配成 cascade = ALL/REMOVE，删用户会级联删除这些角色 → 生产事故高发点。
      */
     @Test
     @DisplayName("级联慎用：删用户，角色仍保留")
