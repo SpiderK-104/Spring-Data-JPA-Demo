@@ -24,6 +24,11 @@ public class UserNativeRepository {
     /**
      * 场景 1：幂等 Upsert —— 对应 pgsql-usage 4.2 的 ON CONFLICT ... DO UPDATE。
      * 以 username 唯一键冲突为触发点，重复写入只更新、不新增第二行。
+     *
+     * 格式：
+     * INSERT INTO ...
+     * ON CONFLICT (唯一约束列)
+     * DO UPDATE SET 列 = EXCLUDED.列
      */
     @Transactional
     public void upsert(String username, String nickname, Integer age, Integer status) {
