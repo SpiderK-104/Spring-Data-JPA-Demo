@@ -42,6 +42,9 @@ class UserPagingTest {
         Pageable pageable = PageRequest.of(0, 5, Sort.by("age").ascending());
         Page<User> page = userRepository.findByStatus(1, pageable);
 
+
+
+
         assertThat(page.getContent()).isNotEmpty();
         page.getContent().forEach(u -> assertThat(u.getStatus()).isEqualTo(1));
 
